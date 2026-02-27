@@ -1,14 +1,14 @@
 model Application {
-    id          Int      @id @default(autoincrement())
-    job_id      Int
-    job         Job      @relation(fields: [job_id], references: [id])
-    name        String
-    email       String
-    resume_link String
-    cover_note  String
-    created_at  DateTime @default(now())
-    updated_at  DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
+  job_id      Int
+  job         Job      @relation(fields: [job_id], references: [id])
+  name        String
+  email       String
+  resume_link String
+  cover_note  String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
 
-    @@index([job_id])
-    @@index([email])
+  @@index([job_id])
+  @@index([email])
 }
