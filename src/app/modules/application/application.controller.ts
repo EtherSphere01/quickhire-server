@@ -4,7 +4,9 @@ import { ApplicationService } from "./application.service";
 
 const createApplication = async (req: Request, res: Response) => {
     try {
-        const application = await ApplicationService.createApplication(req.body);
+        const application = await ApplicationService.createApplication(
+            req.body,
+        );
         res.status(httpStatus.CREATED).json({
             success: true,
             message: "Application submitted successfully",
