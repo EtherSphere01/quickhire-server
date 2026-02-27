@@ -1,21 +1,9 @@
-import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import config from "../../../config";
 import { JwtPayload } from "../../middlewares/auth";
-
-const prisma = new PrismaClient();
-
-type RegisterPayload = {
-    name: string;
-    email: string;
-    password: string;
-};
-
-type LoginPayload = {
-    email: string;
-    password: string;
-};
+import { prisma } from "../../utils/prisma";
+import { LoginPayload, RegisterPayload } from "./auth.types";
 
 const generateAccessToken = (payload: JwtPayload): string => {
     return jwt.sign(payload, config.jwt.secret, {

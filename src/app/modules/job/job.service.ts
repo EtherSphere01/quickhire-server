@@ -1,34 +1,14 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import {
     uploadToCloudinary,
     deleteFromCloudinary,
 } from "../../utils/cloudinary";
-
-const prisma = new PrismaClient();
-
-type JobQueryParams = {
-    search?: string;
-    location?: string;
-    category?: string;
-};
-
-type CreateJobPayload = {
-    title: string;
-    company: string;
-    location: string;
-    category: string;
-    job_type?:
-        | "FULL_TIME"
-        | "PART_TIME"
-        | "CONTRACT"
-        | "INTERNSHIP"
-        | "FREELANCE";
-    salary?: number;
-    description: string;
-    company_logo?: string;
-};
-
-type UpdateJobPayload = Partial<CreateJobPayload>;
+import { prisma } from "../../utils/prisma";
+import {
+    CreateJobPayload,
+    JobQueryParams,
+    UpdateJobPayload,
+} from "./job.types";
 
 const getAllJobs = async (query: JobQueryParams) => {
     const { search, location, category } = query;

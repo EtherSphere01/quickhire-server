@@ -1,10 +1,8 @@
-import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import config from "./config";
+import { prisma } from "./app/utils/prisma";
 
-const prisma = new PrismaClient();
-
-const seedAdmin = async () => {
+export const seedAdmin = async () => {
     const adminEmail = "admin@gmail.com";
 
     const existingAdmin = await prisma.user.findFirst({
@@ -30,15 +28,17 @@ const seedAdmin = async () => {
     console.log(`Admin seeded successfully: ${admin.email}`);
 };
 
-const main = async () => {
-    try {
-        await seedAdmin();
-    } catch (error) {
-        console.error("Seed failed:", error);
-        process.exit(1);
-    } finally {
-        await prisma.$disconnect();
-    }
-};
-
-main();
+// Allow running standalone via `pnpm seed`
+if (require.main === module) {
+    const main = async () => {
+        try {
+            await seedAdmin();
+        } catch (error) {
+            console.error("Seed failed:", error);
+            process.exit(1);
+        } finally {
+            await prisma.$disconnect();
+        }
+    };
+    main();
+}

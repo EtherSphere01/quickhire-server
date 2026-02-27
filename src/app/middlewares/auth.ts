@@ -31,7 +31,6 @@ const auth =
         const accessToken = req.cookies?.accessToken;
         const refreshToken = req.cookies?.refreshToken;
 
-        // Try to verify the access token first
         if (accessToken) {
             try {
                 const decoded = jwt.verify(
@@ -41,17 +40,16 @@ const auth =
                 req.user = decoded;
                 return checkRole(roles, decoded, res, next);
             } catch {
-                // Access token expired or invalid — fall through to refresh
+               
             }
         }
 
-        // No valid access token — try to refresh using the refresh token
+        
         if (refreshToken) {
             try {
                 const newAccessToken =
                     AuthService.refreshAccessToken(refreshToken);
 
-                // Set the fresh access token cookie
                 res.cookie(
                     "accessToken",
                     newAccessToken,
@@ -65,11 +63,10 @@ const auth =
                 req.user = decoded;
                 return checkRole(roles, decoded, res, next);
             } catch {
-                // Refresh token also invalid
+              
             }
         }
 
-        // Neither token is valid
         res.status(httpStatus.UNAUTHORIZED).json({
             success: false,
             message: "Authentication required",

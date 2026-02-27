@@ -1,11 +1,3 @@
-enum JobType {
-  FULL_TIME
-  PART_TIME
-  CONTRACT
-  INTERNSHIP
-  FREELANCE
-}
-
 model Job {
   id           Int           @id @default(autoincrement())
   title        String
