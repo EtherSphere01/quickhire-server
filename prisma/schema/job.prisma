@@ -1,0 +1,16 @@
+model Job {
+    id           Int           @id @default(autoincrement())
+    title        String
+    company      String
+    location     String
+    category     String
+    description  String
+    isDeleted    Boolean       @default(false)
+    created_at   DateTime      @default(now())
+    updated_at   DateTime      @updatedAt
+    applications Application[]
+
+    @@index([isDeleted])
+    @@index([category])
+    @@index([location])
+}
