@@ -1,9 +1,14 @@
 import express from "express";
 import jobRoutes from "../modules/job/job.routes";
+import authRoutes from "../modules/auth/auth.routes";
 
 const router = express.Router();
 
 const moduleRoutes = [
+    {
+        path: "/auth",
+        route: authRoutes,
+    },
     {
         path: "/jobs",
         route: jobRoutes,

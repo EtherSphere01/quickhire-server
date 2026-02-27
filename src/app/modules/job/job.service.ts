@@ -17,6 +17,12 @@ type CreateJobPayload = {
     company: string;
     location: string;
     category: string;
+    job_type?:
+        | "FULL_TIME"
+        | "PART_TIME"
+        | "CONTRACT"
+        | "INTERNSHIP"
+        | "FREELANCE";
     salary?: number;
     description: string;
     company_logo?: string;

@@ -17,6 +17,11 @@ const parsePort = (value: string | undefined): number => {
 
 export default {
     port: parsePort(process.env.PORT),
+    jwt: {
+        secret: process.env.JWT_SECRET || "fallback_secret",
+        expiresIn: process.env.JWT_EXPIRES_IN || "7d",
+    },
+    saltRounds: Number(process.env.SALT_ROUNDS) || 12,
     cloudinary: {
         cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
         api_key: process.env.CLOUDINARY_API_KEY,

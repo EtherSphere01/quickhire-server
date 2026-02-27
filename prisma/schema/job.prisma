@@ -1,3 +1,11 @@
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+  FREELANCE
+}
+
 model Job {
   id           Int           @id @default(autoincrement())
   title        String
@@ -5,6 +13,7 @@ model Job {
   company_logo String?
   location     String
   category     String
+  job_type     JobType       @default(FULL_TIME)
   salary       Int?
   description  String
   isDeleted    Boolean       @default(false)
@@ -15,4 +24,5 @@ model Job {
   @@index([isDeleted])
   @@index([category])
   @@index([location])
+  @@index([job_type])
 }
