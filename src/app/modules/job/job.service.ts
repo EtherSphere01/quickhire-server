@@ -1,4 +1,8 @@
 import { Prisma, PrismaClient } from "@prisma/client";
+import {
+    uploadToCloudinary,
+    deleteFromCloudinary,
+} from "../../utils/cloudinary";
 
 const prisma = new PrismaClient();
 
@@ -15,6 +19,7 @@ type CreateJobPayload = {
     category: string;
     salary?: number;
     description: string;
+    company_logo?: string;
 };
 
 type UpdateJobPayload = Partial<CreateJobPayload>;
@@ -52,12 +57,38 @@ const getJobById = async (id: number) => {
     return job;
 };
 
-const createJob = async (data: CreateJobPayload) => {
+const createJob = async (
+    data: CreateJobPayload,
+    file?: Express.Multer.File,
+) => {
+    if (file) {
+        const uploaded = await uploadToCloudinary(file.buffer);
+        data.company_logo = uploaded.secure_url;
+    }
+
     return prisma.job.create({ data });
 };
 
-const updateJob = async (id: number, data: UpdateJobPayload) => {
-    await getJobById(id);
+const updateJob = async (
+    id: number,
+    data: UpdateJobPayload,
+    file?: Express.Multer.File,
+) => {
+    const existingJob = await getJobById(id);
+
+    if (file) {
+        if (existingJob.company_logo) {
+            const publicId = existingJob.company_logo
+                .split("/")
+                .slice(-2)
+                .join("/")
+                .replace(/\.[^.]+$/, "");
+            await deleteFromCloudinary(publicId);
+        }
+
+        const uploaded = await uploadToCloudinary(file.buffer);
+        data.company_logo = uploaded.secure_url;
+    }
 
     return prisma.job.update({
         where: { id },

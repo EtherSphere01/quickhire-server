@@ -2,6 +2,7 @@ model Job {
   id           Int           @id @default(autoincrement())
   title        String
   company      String
+  company_logo String?
   location     String
   category     String
   salary       Int?

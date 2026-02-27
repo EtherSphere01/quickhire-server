@@ -6,8 +6,9 @@ export const createJobSchema = z.object({
         company: z.string().min(3, "Company is required"),
         location: z.string().min(3, "Location is required"),
         salary: z
-            .number()
-            .positive("Salary must be a positive number")
+            .union([z.string(), z.number()])
+            .transform((v) => Number(v))
+            .pipe(z.number().positive("Salary must be a positive number"))
             .optional(),
         description: z
             .string()
@@ -22,8 +23,9 @@ export const updateJobSchema = z.object({
         company: z.string().min(3, "Company is required").optional(),
         location: z.string().min(3, "Location is required").optional(),
         salary: z
-            .number()
-            .positive("Salary must be a positive number")
+            .union([z.string(), z.number()])
+            .transform((v) => Number(v))
+            .pipe(z.number().positive("Salary must be a positive number"))
             .optional(),
         description: z
             .string()

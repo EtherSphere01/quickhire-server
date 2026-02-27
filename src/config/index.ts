@@ -17,4 +17,9 @@ const parsePort = (value: string | undefined): number => {
 
 export default {
     port: parsePort(process.env.PORT),
+    cloudinary: {
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET,
+    },
 };

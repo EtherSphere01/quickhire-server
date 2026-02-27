@@ -41,7 +41,9 @@ const getJobById = async (req: Request, res: Response) => {
 
 const createJob = async (req: Request, res: Response) => {
     try {
-        const job = await JobService.createJob(req.body);
+        const body = req.body;
+        if (body.salary) body.salary = Number(body.salary);
+        const job = await JobService.createJob(body, req.file);
         res.status(httpStatus.CREATED).json({
             success: true,
             message: "Job created successfully",
@@ -58,7 +60,9 @@ const createJob = async (req: Request, res: Response) => {
 const updateJob = async (req: Request, res: Response) => {
     try {
         const id = Number(req.params.id);
-        const job = await JobService.updateJob(id, req.body);
+        const body = req.body;
+        if (body.salary) body.salary = Number(body.salary);
+        const job = await JobService.updateJob(id, body, req.file);
         res.status(httpStatus.OK).json({
             success: true,
             message: "Job updated successfully",
