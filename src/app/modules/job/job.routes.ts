@@ -7,11 +7,9 @@ import auth from "../../middlewares/auth";
 
 const router = express.Router();
 
-// Public routes — no login required
 router.get("/", JobController.getAllJobs);
 router.get("/:id", JobController.getJobById);
 
-// Admin-only routes
 router.post(
     "/",
     auth("ADMIN"),
