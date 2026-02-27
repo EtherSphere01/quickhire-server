@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import httpStatus from "http-status";
 import config from "../../config";
+import { AuthService } from "../modules/auth/auth.service";
 
 export type JwtPayload = {
     id: number;
@@ -17,41 +18,78 @@ declare global {
     }
 }
 
+const COOKIE_OPTIONS_ACCESS = {
+    httpOnly: true,
+    secure: config.env === "production",
+    sameSite: "strict" as const,
+    maxAge: 15 * 60 * 1000,
+};
+
 const auth =
     (...roles: string[]) =>
     (req: Request, res: Response, next: NextFunction) => {
-        const authHeader = req.headers.authorization;
+        const accessToken = req.cookies?.accessToken;
+        const refreshToken = req.cookies?.refreshToken;
 
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
-            res.status(httpStatus.UNAUTHORIZED).json({
-                success: false,
-                message: "Authentication required",
-            });
-            return;
-        }
-
-        const token = authHeader.split(" ")[1];
-
-        try {
-            const decoded = jwt.verify(token, config.jwt.secret) as JwtPayload;
-            req.user = decoded;
-
-            if (roles.length && !roles.includes(decoded.role)) {
-                res.status(httpStatus.FORBIDDEN).json({
-                    success: false,
-                    message:
-                        "You do not have permission to perform this action",
-                });
-                return;
+        // Try to verify the access token first
+        if (accessToken) {
+            try {
+                const decoded = jwt.verify(
+                    accessToken,
+                    config.jwt.secret,
+                ) as JwtPayload;
+                req.user = decoded;
+                return checkRole(roles, decoded, res, next);
+            } catch {
+                // Access token expired or invalid — fall through to refresh
             }
-
-            next();
-        } catch {
-            res.status(httpStatus.UNAUTHORIZED).json({
-                success: false,
-                message: "Invalid or expired token",
-            });
         }
+
+        // No valid access token — try to refresh using the refresh token
+        if (refreshToken) {
+            try {
+                const newAccessToken =
+                    AuthService.refreshAccessToken(refreshToken);
+
+                // Set the fresh access token cookie
+                res.cookie(
+                    "accessToken",
+                    newAccessToken,
+                    COOKIE_OPTIONS_ACCESS,
+                );
+
+                const decoded = jwt.verify(
+                    newAccessToken,
+                    config.jwt.secret,
+                ) as JwtPayload;
+                req.user = decoded;
+                return checkRole(roles, decoded, res, next);
+            } catch {
+                // Refresh token also invalid
+            }
+        }
+
+        // Neither token is valid
+        res.status(httpStatus.UNAUTHORIZED).json({
+            success: false,
+            message: "Authentication required",
+        });
     };
+
+const checkRole = (
+    roles: string[],
+    decoded: JwtPayload,
+    res: Response,
+    next: NextFunction,
+) => {
+    if (roles.length && !roles.includes(decoded.role)) {
+        res.status(httpStatus.FORBIDDEN).json({
+            success: false,
+            message: "You do not have permission to perform this action",
+        });
+        return;
+    }
+    next();
+};
 
 export default auth;

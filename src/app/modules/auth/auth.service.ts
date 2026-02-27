@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import config from "../../../config";
+import { JwtPayload } from "../../middlewares/auth";
 
 const prisma = new PrismaClient();
 
@@ -14,6 +15,18 @@ type RegisterPayload = {
 type LoginPayload = {
     email: string;
     password: string;
+};
+
+const generateAccessToken = (payload: JwtPayload): string => {
+    return jwt.sign(payload, config.jwt.secret, {
+        expiresIn: config.jwt.expiresIn as jwt.SignOptions["expiresIn"],
+    });
+};
+
+const generateRefreshToken = (payload: JwtPayload): string => {
+    return jwt.sign(payload, config.jwt.refreshSecret, {
+        expiresIn: config.jwt.refreshExpiresIn as jwt.SignOptions["expiresIn"],
+    });
 };
 
 const register = async (data: RegisterPayload) => {
@@ -60,14 +73,18 @@ const login = async (data: LoginPayload) => {
         throw new Error("Invalid email or password");
     }
 
-    const token = jwt.sign(
-        { id: user.id, email: user.email, role: user.role },
-        config.jwt.secret,
-        { expiresIn: config.jwt.expiresIn as jwt.SignOptions["expiresIn"] },
-    );
+    const tokenPayload: JwtPayload = {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+    };
+
+    const accessToken = generateAccessToken(tokenPayload);
+    const refreshToken = generateRefreshToken(tokenPayload);
 
     return {
-        token,
+        accessToken,
+        refreshToken,
         user: {
             id: user.id,
             name: user.name,
@@ -77,7 +94,23 @@ const login = async (data: LoginPayload) => {
     };
 };
 
+const refreshAccessToken = (refreshToken: string) => {
+    const decoded = jwt.verify(
+        refreshToken,
+        config.jwt.refreshSecret,
+    ) as JwtPayload;
+
+    const tokenPayload: JwtPayload = {
+        id: decoded.id,
+        email: decoded.email,
+        role: decoded.role,
+    };
+
+    return generateAccessToken(tokenPayload);
+};
+
 export const AuthService = {
     register,
     login,
+    refreshAccessToken,
 };
