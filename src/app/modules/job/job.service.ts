@@ -91,10 +91,35 @@ const deleteJob = async (id: number) => {
     });
 };
 
+const getDashboardStats = async () => {
+    const jobs = await prisma.job.findMany({
+        where: { isDeleted: false },
+        select: { id: true, job_type: true, category: true, created_at: true },
+    });
+
+    const totalApplications = await prisma.application.count();
+
+    const jobsByType: Record<string, number> = {};
+    const jobsByCategory: Record<string, number> = {};
+
+    for (const job of jobs) {
+        jobsByType[job.job_type] = (jobsByType[job.job_type] || 0) + 1;
+        jobsByCategory[job.category] = (jobsByCategory[job.category] || 0) + 1;
+    }
+
+    return {
+        totalJobs: jobs.length,
+        totalApplications,
+        jobsByType,
+        jobsByCategory,
+    };
+};
+
 export const JobService = {
     getAllJobs,
     getJobById,
     createJob,
     updateJob,
     deleteJob,
+    getDashboardStats,
 };

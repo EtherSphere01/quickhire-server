@@ -7,6 +7,7 @@ import auth from "../../middlewares/auth";
 
 const router = express.Router();
 
+router.get("/stats", auth("ADMIN"), JobController.getDashboardStats);
 router.get("/", JobController.getAllJobs);
 router.get("/:id", JobController.getJobById);
 

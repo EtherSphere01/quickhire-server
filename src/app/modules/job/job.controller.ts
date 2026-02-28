@@ -100,10 +100,27 @@ const deleteJob = async (req: Request, res: Response) => {
     }
 };
 
+const getDashboardStats = async (req: Request, res: Response) => {
+    try {
+        const stats = await JobService.getDashboardStats();
+        res.status(httpStatus.OK).json({
+            success: true,
+            message: "Dashboard stats retrieved successfully",
+            data: stats,
+        });
+    } catch (error: any) {
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: error.message || "Failed to retrieve stats",
+        });
+    }
+};
+
 export const JobController = {
     getAllJobs,
     getJobById,
     createJob,
     updateJob,
     deleteJob,
+    getDashboardStats,
 };
