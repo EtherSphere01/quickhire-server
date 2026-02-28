@@ -13,7 +13,10 @@ import {
 const getAllJobs = async (query: JobQueryParams) => {
     const { search, location, category } = query;
     const page = Math.max(1, parseInt(query.page || "1", 10) || 1);
-    const limit = Math.min(50, Math.max(1, parseInt(query.limit || "10", 10) || 10));
+    const limit = Math.min(
+        50,
+        Math.max(1, parseInt(query.limit || "10", 10) || 10),
+    );
     const skip = (page - 1) * limit;
 
     const where: Prisma.JobWhereInput = {
@@ -153,7 +156,12 @@ const getDashboardStats = async () => {
     if (topAppliedRaw.length > 0) {
         const topJob = await prisma.job.findUnique({
             where: { id: topAppliedRaw[0].job_id },
-            select: { id: true, title: true, company: true, company_logo: true },
+            select: {
+                id: true,
+                title: true,
+                company: true,
+                company_logo: true,
+            },
         });
         if (topJob) {
             topAppliedJob = {

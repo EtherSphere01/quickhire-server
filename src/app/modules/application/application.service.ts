@@ -20,12 +20,12 @@ const getApplicationsByJobId = async (jobId: number) => {
     });
 };
 
-const getAllApplications = async (query: {
-    page?: string;
-    limit?: string;
-}) => {
+const getAllApplications = async (query: { page?: string; limit?: string }) => {
     const page = Math.max(1, parseInt(query.page || "1", 10) || 1);
-    const limit = Math.min(50, Math.max(1, parseInt(query.limit || "10", 10) || 10));
+    const limit = Math.min(
+        50,
+        Math.max(1, parseInt(query.limit || "10", 10) || 10),
+    );
     const skip = (page - 1) * limit;
 
     const [applications, total] = await Promise.all([

@@ -30,9 +30,10 @@ RESTful API backend for the QuickHire job board, built with **Express 5**, **Pri
 - Role-based access control (ADMIN / USER)
 - Full CRUD for job postings (admin only)
 - Job search with keyword, location, category, and job type filters
-- Pagination support with limit/page query params
+- Server-side pagination with limit/page query params and meta response
+- Admin dashboard stats API (aggregated in single call)
 - Company logo upload via Cloudinary
-- Job application submission
+- Job application submission and listing
 - Request validation with Zod
 - Soft delete for jobs
 - Database seeding (admin user + 29 sample jobs)
@@ -172,31 +173,74 @@ Base URL: `/api`
 
 ### Jobs — `/api/jobs`
 
-| Method | Endpoint    | Auth  | Description              |
-| ------ | ----------- | ----- | ------------------------ |
-| GET    | `/jobs`     | No    | List jobs (with filters) |
-| GET    | `/jobs/:id` | No    | Get job by ID            |
-| POST   | `/jobs`     | ADMIN | Create a new job         |
-| PATCH  | `/jobs/:id` | ADMIN | Update a job             |
-| DELETE | `/jobs/:id` | ADMIN | Soft delete a job        |
+| Method | Endpoint      | Auth  | Description                  |
+| ------ | ------------- | ----- | ---------------------------- |
+| GET    | `/jobs/stats` | ADMIN | Dashboard stats (aggregated) |
+| GET    | `/jobs`       | No    | List jobs (with filters)     |
+| GET    | `/jobs/:id`   | No    | Get job by ID                |
+| POST   | `/jobs`       | ADMIN | Create a new job             |
+| PATCH  | `/jobs/:id`   | ADMIN | Update a job                 |
+| DELETE | `/jobs/:id`   | ADMIN | Soft delete a job            |
 
 **Query parameters for `GET /api/jobs`:**
 
 | Param      | Type   | Description                                 |
 | ---------- | ------ | ------------------------------------------- |
-| `search`   | string | Search in title, company, location          |
+| `search`   | string | Search in title                             |
 | `location` | string | Filter by location                          |
 | `category` | string | Filter by category                          |
-| `job_type` | string | Filter by type (FULL_TIME, PART_TIME, etc.) |
 | `page`     | number | Page number (default: 1)                    |
-| `limit`    | number | Items per page (default: 9)                 |
+| `limit`    | number | Items per page (default: 10, max: 50)       |
+
+**Response includes `meta` object:**
+
+```json
+{
+    "success": true,
+    "data": [...],
+    "meta": {
+        "page": 1,
+        "limit": 10,
+        "total": 29,
+        "totalPages": 3
+    }
+}
+```
+
+**`GET /api/jobs/stats` response:**
+
+```json
+{
+    "success": true,
+    "data": {
+        "totalJobs": 29,
+        "totalApplications": 5,
+        "jobsByType": { "FULL_TIME": 12, "PART_TIME": 5, ... },
+        "jobsByCategory": { "Technology": 8, "Design": 4, ... },
+        "jobsByCompany": { "Google": 3, "Meta": 2, ... },
+        "topAppliedJob": { "id": 1, "title": "...", "company": "...", "applicationCount": 3 },
+        "recentApplications": [...],
+        "recentJobs": [...]
+    }
+}
+```
 
 ### Applications — `/api/applications`
 
-| Method | Endpoint                   | Auth  | Description                |
-| ------ | -------------------------- | ----- | -------------------------- |
-| POST   | `/applications`            | No    | Submit a job application   |
-| GET    | `/applications/job/:jobId` | ADMIN | Get applications for a job |
+| Method | Endpoint                   | Auth  | Description                      |
+| ------ | -------------------------- | ----- | -------------------------------- |
+| GET    | `/applications`            | ADMIN | List all applications (paginated)|
+| POST   | `/applications`            | No    | Submit a job application         |
+| GET    | `/applications/job/:jobId` | ADMIN | Get applications for a job       |
+
+**Query parameters for `GET /api/applications`:**
+
+| Param   | Type   | Description                           |
+| ------- | ------ | ------------------------------------- |
+| `page`  | number | Page number (default: 1)              |
+| `limit` | number | Items per page (default: 10, max: 50) |
+
+**Response includes `meta` object** (same format as jobs pagination).
 
 #### POST `/api/applications`
 
