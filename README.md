@@ -184,13 +184,13 @@ Base URL: `/api`
 
 **Query parameters for `GET /api/jobs`:**
 
-| Param      | Type   | Description                                 |
-| ---------- | ------ | ------------------------------------------- |
-| `search`   | string | Search in title                             |
-| `location` | string | Filter by location                          |
-| `category` | string | Filter by category                          |
-| `page`     | number | Page number (default: 1)                    |
-| `limit`    | number | Items per page (default: 10, max: 50)       |
+| Param      | Type   | Description                           |
+| ---------- | ------ | ------------------------------------- |
+| `search`   | string | Search in title                       |
+| `location` | string | Filter by location                    |
+| `category` | string | Filter by category                    |
+| `page`     | number | Page number (default: 1)              |
+| `limit`    | number | Items per page (default: 10, max: 50) |
 
 **Response includes `meta` object:**
 
@@ -227,11 +227,11 @@ Base URL: `/api`
 
 ### Applications — `/api/applications`
 
-| Method | Endpoint                   | Auth  | Description                      |
-| ------ | -------------------------- | ----- | -------------------------------- |
-| GET    | `/applications`            | ADMIN | List all applications (paginated)|
-| POST   | `/applications`            | No    | Submit a job application         |
-| GET    | `/applications/job/:jobId` | ADMIN | Get applications for a job       |
+| Method | Endpoint                   | Auth  | Description                       |
+| ------ | -------------------------- | ----- | --------------------------------- |
+| GET    | `/applications`            | ADMIN | List all applications (paginated) |
+| POST   | `/applications`            | No    | Submit a job application          |
+| GET    | `/applications/job/:jobId` | ADMIN | Get applications for a job        |
 
 **Query parameters for `GET /api/applications`:**
 

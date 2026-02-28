@@ -45,6 +45,7 @@ const createJob = async (req: Request, res: Response) => {
         const body = req.body;
         if (body.salary) body.salary = Number(body.salary);
         const job = await JobService.createJob(body, req.file);
+        JobService.invalidateStatsCache();
         res.status(httpStatus.CREATED).json({
             success: true,
             message: "Job created successfully",
@@ -64,6 +65,7 @@ const updateJob = async (req: Request, res: Response) => {
         const body = req.body;
         if (body.salary) body.salary = Number(body.salary);
         const job = await JobService.updateJob(id, body, req.file);
+        JobService.invalidateStatsCache();
         res.status(httpStatus.OK).json({
             success: true,
             message: "Job updated successfully",
@@ -85,6 +87,7 @@ const deleteJob = async (req: Request, res: Response) => {
     try {
         const id = Number(req.params.id);
         await JobService.deleteJob(id);
+        JobService.invalidateStatsCache();
         res.status(httpStatus.OK).json({
             success: true,
             message: "Job deleted successfully",
@@ -104,6 +107,10 @@ const deleteJob = async (req: Request, res: Response) => {
 const getDashboardStats = async (req: Request, res: Response) => {
     try {
         const stats = await JobService.getDashboardStats();
+        res.set(
+            "Cache-Control",
+            "private, max-age=30, stale-while-revalidate=60",
+        );
         res.status(httpStatus.OK).json({
             success: true,
             message: "Dashboard stats retrieved successfully",

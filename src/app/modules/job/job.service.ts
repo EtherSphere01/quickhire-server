@@ -107,50 +107,79 @@ const deleteJob = async (id: number) => {
     });
 };
 
+let statsCache: { data: any; timestamp: number } | null = null;
+const STATS_CACHE_TTL = 30_000;
+
 const getDashboardStats = async () => {
-    const [jobs, totalApplications, recentApplications, topAppliedRaw] =
-        await Promise.all([
-            prisma.job.findMany({
-                where: { isDeleted: false },
-                select: {
-                    id: true,
-                    title: true,
-                    company: true,
-                    company_logo: true,
-                    job_type: true,
-                    category: true,
-                    location: true,
-                    created_at: true,
-                },
-                orderBy: { created_at: "desc" },
-            }),
-            prisma.application.count(),
-            prisma.application.findMany({
-                orderBy: { created_at: "desc" },
-                take: 10,
-                include: {
-                    job: {
-                        select: { title: true, company: true },
-                    },
-                },
-            }),
-            prisma.application.groupBy({
-                by: ["job_id"],
-                _count: { id: true },
-                orderBy: { _count: { id: "desc" } },
-                take: 1,
-            }),
-        ]);
+    if (statsCache && Date.now() - statsCache.timestamp < STATS_CACHE_TTL) {
+        return statsCache.data;
+    }
+
+    const [
+        totalJobs,
+        totalApplications,
+        typeGroups,
+        categoryGroups,
+        companyGroups,
+        topAppliedRaw,
+        recentApplications,
+        recentJobs,
+    ] = await Promise.all([
+        prisma.job.count({ where: { isDeleted: false } }),
+        prisma.application.count(),
+        prisma.job.groupBy({
+            by: ["job_type"],
+            where: { isDeleted: false },
+            _count: { id: true },
+        }),
+        prisma.job.groupBy({
+            by: ["category"],
+            where: { isDeleted: false },
+            _count: { id: true },
+        }),
+        prisma.job.groupBy({
+            by: ["company"],
+            where: { isDeleted: false },
+            _count: { id: true },
+        }),
+        prisma.application.groupBy({
+            by: ["job_id"],
+            _count: { id: true },
+            orderBy: { _count: { id: "desc" } },
+            take: 1,
+        }),
+        prisma.application.findMany({
+            orderBy: { created_at: "desc" },
+            take: 10,
+            include: {
+                job: { select: { title: true, company: true } },
+            },
+        }),
+        prisma.job.findMany({
+            where: { isDeleted: false },
+            orderBy: { created_at: "desc" },
+            take: 5,
+            select: {
+                id: true,
+                title: true,
+                company: true,
+                company_logo: true,
+                job_type: true,
+                category: true,
+                location: true,
+                created_at: true,
+            },
+        }),
+    ]);
 
     const jobsByType: Record<string, number> = {};
-    const jobsByCategory: Record<string, number> = {};
-    const jobsByCompany: Record<string, number> = {};
+    for (const g of typeGroups) jobsByType[g.job_type] = g._count.id;
 
-    for (const job of jobs) {
-        jobsByType[job.job_type] = (jobsByType[job.job_type] || 0) + 1;
-        jobsByCategory[job.category] = (jobsByCategory[job.category] || 0) + 1;
-        jobsByCompany[job.company] = (jobsByCompany[job.company] || 0) + 1;
-    }
+    const jobsByCategory: Record<string, number> = {};
+    for (const g of categoryGroups) jobsByCategory[g.category] = g._count.id;
+
+    const jobsByCompany: Record<string, number> = {};
+    for (const g of companyGroups) jobsByCompany[g.company] = g._count.id;
 
     let topAppliedJob = null;
     if (topAppliedRaw.length > 0) {
@@ -171,16 +200,23 @@ const getDashboardStats = async () => {
         }
     }
 
-    return {
-        totalJobs: jobs.length,
+    const result = {
+        totalJobs,
         totalApplications,
         jobsByType,
         jobsByCategory,
         jobsByCompany,
         topAppliedJob,
         recentApplications,
-        recentJobs: jobs.slice(0, 5),
+        recentJobs,
     };
+
+    statsCache = { data: result, timestamp: Date.now() };
+    return result;
+};
+
+const invalidateStatsCache = () => {
+    statsCache = null;
 };
 
 export const JobService = {
@@ -190,4 +226,5 @@ export const JobService = {
     updateJob,
     deleteJob,
     getDashboardStats,
+    invalidateStatsCache,
 };
