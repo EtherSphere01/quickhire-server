@@ -4,8 +4,13 @@ RESTful API backend for the QuickHire job board, built with **Express 5**, **Pri
 
 ## Live Demo
 
-- **Backend:** [https://quickhire-server.vercel.app](https://quickhire-server.vercel.app)
+- **Backend:** [https://quickhire-server-three.vercel.app](https://quickhire-server-three.vercel.app)
 - **Frontend:** [https://quickhire-client.vercel.app](https://quickhire-client.vercel.app)
+
+## GitHub Repositories
+
+- **Server:** [https://github.com/EtherSphere01/quickhire-server](https://github.com/EtherSphere01/quickhire-server)
+- **Client:** [https://github.com/EtherSphere01/quickhire-client](https://github.com/EtherSphere01/quickhire-client)
 
 ## Tech Stack
 
@@ -44,7 +49,7 @@ RESTful API backend for the QuickHire job board, built with **Express 5**, **Pri
 ### 1. Clone the repository
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/EtherSphere01/quickhire-server.git
 cd quickhire-server
 ```
 
