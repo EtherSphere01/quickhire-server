@@ -22,7 +22,8 @@ export default {
         secret: process.env.JWT_SECRET?.trim() || "fallback_secret",
         expiresIn: process.env.JWT_EXPIRES_IN?.trim() || "15m",
         refreshSecret:
-            process.env.REFRESH_TOKEN_SECRET?.trim() || "fallback_refresh_secret",
+            process.env.REFRESH_TOKEN_SECRET?.trim() ||
+            "fallback_refresh_secret",
         refreshExpiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN?.trim() || "30d",
     },
     saltRounds: Number(process.env.SALT_ROUNDS) || 12,
