@@ -2,6 +2,8 @@ export type JobQueryParams = {
     search?: string;
     location?: string;
     category?: string;
+    page?: string;
+    limit?: string;
 };
 
 export type CreateJobPayload = {

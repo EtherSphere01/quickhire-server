@@ -12,6 +12,9 @@ import {
 
 const getAllJobs = async (query: JobQueryParams) => {
     const { search, location, category } = query;
+    const page = Math.max(1, parseInt(query.page || "1", 10) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(query.limit || "10", 10) || 10));
+    const skip = (page - 1) * limit;
 
     const where: Prisma.JobWhereInput = {
         isDeleted: false,
@@ -24,10 +27,20 @@ const getAllJobs = async (query: JobQueryParams) => {
             : undefined,
     };
 
-    return prisma.job.findMany({
-        where,
-        orderBy: { created_at: "desc" },
-    });
+    const [jobs, total] = await Promise.all([
+        prisma.job.findMany({
+            where,
+            orderBy: { created_at: "desc" },
+            skip,
+            take: limit,
+        }),
+        prisma.job.count({ where }),
+    ]);
+
+    return {
+        jobs,
+        meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    };
 };
 
 const getJobById = async (id: number) => {
@@ -92,19 +105,62 @@ const deleteJob = async (id: number) => {
 };
 
 const getDashboardStats = async () => {
-    const jobs = await prisma.job.findMany({
-        where: { isDeleted: false },
-        select: { id: true, job_type: true, category: true, created_at: true },
-    });
-
-    const totalApplications = await prisma.application.count();
+    const [jobs, totalApplications, recentApplications, topAppliedRaw] =
+        await Promise.all([
+            prisma.job.findMany({
+                where: { isDeleted: false },
+                select: {
+                    id: true,
+                    title: true,
+                    company: true,
+                    company_logo: true,
+                    job_type: true,
+                    category: true,
+                    location: true,
+                    created_at: true,
+                },
+                orderBy: { created_at: "desc" },
+            }),
+            prisma.application.count(),
+            prisma.application.findMany({
+                orderBy: { created_at: "desc" },
+                take: 10,
+                include: {
+                    job: {
+                        select: { title: true, company: true },
+                    },
+                },
+            }),
+            prisma.application.groupBy({
+                by: ["job_id"],
+                _count: { id: true },
+                orderBy: { _count: { id: "desc" } },
+                take: 1,
+            }),
+        ]);
 
     const jobsByType: Record<string, number> = {};
     const jobsByCategory: Record<string, number> = {};
+    const jobsByCompany: Record<string, number> = {};
 
     for (const job of jobs) {
         jobsByType[job.job_type] = (jobsByType[job.job_type] || 0) + 1;
         jobsByCategory[job.category] = (jobsByCategory[job.category] || 0) + 1;
+        jobsByCompany[job.company] = (jobsByCompany[job.company] || 0) + 1;
+    }
+
+    let topAppliedJob = null;
+    if (topAppliedRaw.length > 0) {
+        const topJob = await prisma.job.findUnique({
+            where: { id: topAppliedRaw[0].job_id },
+            select: { id: true, title: true, company: true, company_logo: true },
+        });
+        if (topJob) {
+            topAppliedJob = {
+                ...topJob,
+                applicationCount: topAppliedRaw[0]._count.id,
+            };
+        }
     }
 
     return {
@@ -112,6 +168,10 @@ const getDashboardStats = async () => {
         totalApplications,
         jobsByType,
         jobsByCategory,
+        jobsByCompany,
+        topAppliedJob,
+        recentApplications,
+        recentJobs: jobs.slice(0, 5),
     };
 };
 

@@ -4,11 +4,12 @@ import { JobService } from "./job.service";
 
 const getAllJobs = async (req: Request, res: Response) => {
     try {
-        const jobs = await JobService.getAllJobs(req.query);
+        const result = await JobService.getAllJobs(req.query);
         res.status(httpStatus.OK).json({
             success: true,
             message: "Jobs retrieved successfully",
-            data: jobs,
+            data: result.jobs,
+            meta: result.meta,
         });
     } catch (error: any) {
         res.status(httpStatus.INTERNAL_SERVER_ERROR).json({

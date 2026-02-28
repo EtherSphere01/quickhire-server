@@ -42,7 +42,25 @@ const getApplicationsByJobId = async (req: Request, res: Response) => {
     }
 };
 
+const getAllApplications = async (req: Request, res: Response) => {
+    try {
+        const result = await ApplicationService.getAllApplications(req.query);
+        res.status(httpStatus.OK).json({
+            success: true,
+            message: "Applications retrieved successfully",
+            data: result.applications,
+            meta: result.meta,
+        });
+    } catch (error: any) {
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: error.message || "Failed to retrieve applications",
+        });
+    }
+};
+
 export const ApplicationController = {
     createApplication,
     getApplicationsByJobId,
+    getAllApplications,
 };
