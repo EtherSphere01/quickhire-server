@@ -40,7 +40,7 @@ RESTful API backend for the QuickHire job board, built with **Express 5**, **Pri
 ## Prerequisites
 
 - **Node.js** >= 18
-- **pnpm** >= 10
+- **pnpm** >= 10 / **npm** >= 9 / **yarn** >= 1.22
 - **PostgreSQL** database (recommended: [Neon](https://neon.tech))
 - **Cloudinary** account for image uploads
 
@@ -57,6 +57,10 @@ cd quickhire-server
 
 ```bash
 pnpm install
+# or
+npm install
+# or
+yarn install
 ```
 
 ### 3. Environment setup
@@ -86,12 +90,20 @@ cp .env.example .env
 
 ```bash
 pnpm prisma:migrate
+# or
+npm run prisma:migrate
+# or
+yarn prisma:migrate
 ```
 
 ### 5. Seed the database
 
 ```bash
 pnpm seed
+# or
+npm run seed
+# or
+yarn seed
 ```
 
 This creates an admin user and 29 sample job listings.
@@ -106,21 +118,25 @@ This creates an admin user and 29 sample job listings.
 
 ```bash
 pnpm dev
+# or
+npm run dev
+# or
+yarn dev
 ```
 
 Server runs at [http://localhost:5000](http://localhost:5000).
 
 ## Available Scripts
 
-| Script            | Command                | Description                     |
-| ----------------- | ---------------------- | ------------------------------- |
-| `dev`             | `pnpm dev`             | Start dev server with tsx watch |
-| `build`           | `pnpm build`           | Compile TypeScript              |
-| `start`           | `pnpm start`           | Run compiled output             |
-| `seed`            | `pnpm seed`            | Seed database with sample data  |
-| `prisma:generate` | `pnpm prisma:generate` | Generate Prisma client          |
-| `prisma:migrate`  | `pnpm prisma:migrate`  | Run database migrations         |
-| `prisma:deploy`   | `pnpm prisma:deploy`   | Deploy migrations (production)  |
+| Script            | pnpm                   | npm                       | yarn                   | Description                     |
+| ----------------- | ---------------------- | ------------------------- | ---------------------- | ------------------------------- |
+| `dev`             | `pnpm dev`             | `npm run dev`             | `yarn dev`             | Start dev server with tsx watch |
+| `build`           | `pnpm build`           | `npm run build`           | `yarn build`           | Compile TypeScript              |
+| `start`           | `pnpm start`           | `npm run start`           | `yarn start`           | Run compiled output             |
+| `seed`            | `pnpm seed`            | `npm run seed`            | `yarn seed`            | Seed database with sample data  |
+| `prisma:generate` | `pnpm prisma:generate` | `npm run prisma:generate` | `yarn prisma:generate` | Generate Prisma client          |
+| `prisma:migrate`  | `pnpm prisma:migrate`  | `npm run prisma:migrate`  | `yarn prisma:migrate`  | Run database migrations         |
+| `prisma:deploy`   | `pnpm prisma:deploy`   | `npm run prisma:deploy`   | `yarn prisma:deploy`   | Deploy migrations (production)  |
 
 ## API Endpoints
 
