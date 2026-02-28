@@ -24,7 +24,6 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/api", router);
 
-// 404 handler
 app.use((req: Request, res: Response, next: NextFunction) => {
     res.status(httpStatus.NOT_FOUND).json({
         success: false,
@@ -36,7 +35,6 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     });
 });
 
-// Global error handler
 app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
     const statusCode = err.statusCode || httpStatus.INTERNAL_SERVER_ERROR;
     res.status(statusCode).json({

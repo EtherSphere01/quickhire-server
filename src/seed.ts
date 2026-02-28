@@ -335,7 +335,6 @@ export const seedJobs = async () => {
     console.log(`Seeded ${jobs.length} jobs successfully.`);
 };
 
-// Allow running standalone via `pnpm seed`
 if (require.main === module) {
     const main = async () => {
         try {

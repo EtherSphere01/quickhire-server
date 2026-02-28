@@ -7,14 +7,14 @@ const COOKIE_OPTIONS_ACCESS = {
     httpOnly: true,
     secure: config.env === "production",
     sameSite: "strict" as const,
-    maxAge: 15 * 60 * 1000, // 15 minutes
+    maxAge: 15 * 60 * 1000,
 };
 
 const COOKIE_OPTIONS_REFRESH = {
     httpOnly: true,
     secure: config.env === "production",
     sameSite: "strict" as const,
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    maxAge: 30 * 24 * 60 * 60 * 1000,
 };
 
 const register = async (req: Request, res: Response) => {

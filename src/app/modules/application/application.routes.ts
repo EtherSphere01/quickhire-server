@@ -6,14 +6,12 @@ import auth from "../../middlewares/auth";
 
 const router = express.Router();
 
-// Public — anyone can apply without login
 router.post(
     "/",
     validateRequest(createApplicationSchema),
     ApplicationController.createApplication,
 );
 
-// Admin-only — view applications for a job
 router.get(
     "/job/:jobId",
     auth("ADMIN"),
