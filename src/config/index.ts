@@ -19,16 +19,16 @@ export default {
     port: parsePort(process.env.PORT),
     env: process.env.NODE_ENV || "development",
     jwt: {
-        secret: process.env.JWT_SECRET || "fallback_secret",
-        expiresIn: process.env.JWT_EXPIRES_IN || "15m",
+        secret: process.env.JWT_SECRET?.trim() || "fallback_secret",
+        expiresIn: process.env.JWT_EXPIRES_IN?.trim() || "15m",
         refreshSecret:
-            process.env.REFRESH_TOKEN_SECRET || "fallback_refresh_secret",
-        refreshExpiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || "30d",
+            process.env.REFRESH_TOKEN_SECRET?.trim() || "fallback_refresh_secret",
+        refreshExpiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN?.trim() || "30d",
     },
     saltRounds: Number(process.env.SALT_ROUNDS) || 12,
     cloudinary: {
-        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-        api_key: process.env.CLOUDINARY_API_KEY,
-        api_secret: process.env.CLOUDINARY_API_SECRET,
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME?.trim(),
+        api_key: process.env.CLOUDINARY_API_KEY?.trim(),
+        api_secret: process.env.CLOUDINARY_API_SECRET?.trim(),
     },
 };
