@@ -1,4 +1,6 @@
 {
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 150,
     "files.associations": {
         "*.prisma": "prisma",
         "*.schema": "prisma"
